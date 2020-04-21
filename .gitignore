@@ -1,6 +1,8 @@
 venv
+project_venv
+.vscode/
 *.pyc
-migrations 
+migrations
 vagrant/.vagrant
 vagrant/site.retry
 vagrant/a4keypair.pem
