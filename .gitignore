@@ -1,6 +1,7 @@
 venv
 project_venv
 .vscode/
+.ipynb_checkpoints/
 *.pyc
 migrations
 vagrant/.vagrant
