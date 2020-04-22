@@ -9,3 +9,6 @@ vagrant/site.retry
 vagrant/a4keypair.pem
 .idea/
 *.iml
+model.pkl
+RAW_interactions.csv
+RAW_recipes.csv
