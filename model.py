@@ -6,6 +6,7 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 from nltk.corpus import stopwords
 import gensim.downloader as api
+import numpy as np
 
 def process():
 
@@ -14,29 +15,46 @@ def process():
     flavors = ['sweet', 'salty', 'savory', 'sour', 'spicy', 'bitter', 'citrus', 'fruity', 'rich']
     stop_words = set(stopwords.words('english'))
     wv = api.load('glove-twitter-25')
+    
+    with open('RAW_interactions.csv', encoding='utf-8') as f:
+        
+        raw_interactions = pd.read_csv(f)
+        valid_recipes = {}
+        
+        for idx, row in raw_interactions.iterrows():
+            r_id = row['recipe_id']
+            if r_id not in valid_recipes:
+                valid_recipes[r_id] = []
+            valid_recipes[r_id].append(row['rating'])
+        
+    good_valid_recipes = {}
+    extra = [3] * 5
 
+    for r_id, rating_list in valid_recipes.items():
+        mean = np.mean(rating_list + extra)
+        if len(rating_list) != 6 and mean >= 4:
+            good_valid_recipes[r_id] = mean
+        
+        
     with open('RAW_recipes.csv', encoding='utf-8') as f:
 
         raw_recipes = pd.read_csv(f)
 
         for idx, row in raw_recipes.iterrows():
 
-            if idx % 10 != 0:
-                continue
-
-            if type(row['name']) is not str or row['name'] is '':
+            if type(row['name']) is not str or row['name'] is '' or row['id'] not in good_valid_recipes:
                 continue
 
             row_id = row['id']
             recipes[row_id] = {}
+            
             recipes[row_id]['name'] = row['name']
             recipes[row_id]['id']=row['id']
             recipes[row_id]['description'] = row['description']
             recipes[row_id]['ingredients'] = ast.literal_eval(row['ingredients'])
-            recipes[row_id]['steps'] = ast.literal_eval(row['steps'])
-            recipes[row_id]['nutrition'] = ast.literal_eval(row['nutrition'])
             recipes[row_id]['tags'] = ast.literal_eval(row['tags'])
             recipes[row_id]['flavors'] = {}
+            recipes[row_id]['rating'] = good_valid_recipes[row_id]
 
             recipes[row_id]['features'] = set()
 
